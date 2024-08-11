@@ -1,0 +1,17 @@
+setUp:
+install dependancies shadCn, cleark
+
+signIn/signUp:
+add cleark components for signIn & signUp
+and middleware for protecting the routes
+
+add Organizations:
+with organization feature of clerk enable organization & add in header
+
+design workspaceList Page:
+as per the design created
+
+design create-workspace page:
+using shadCn add dialogbox for setting coverImage
+
+design Emoji picker component:
