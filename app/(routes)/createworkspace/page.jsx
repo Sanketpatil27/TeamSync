@@ -11,6 +11,7 @@ import { Loader2Icon, SmilePlus } from 'lucide-react';
 import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
+import uuid4 from 'uuid4';
 
 function CreateWorkspace() {
     const { user } = useUser();
@@ -26,20 +27,36 @@ function CreateWorkspace() {
     const OnCreateWorkspace = async () => {
         setLoading(true);
 
-        const docId = Date.now();
+        const workspaceId = Date.now();
 
-        // in setdoc, provide doc(firestore and collection name & docID in string format) & fields which we want to insert
-        const result = await setDoc(doc(db, 'workspace', docId.toString()), {
+        // in setdoc, provide doc(firestore and collection name & workspaceId in string format) & fields which we want to insert
+        const result = await setDoc(doc(db, 'workspace', workspaceId.toString()), {
             workspaceName: workspaceName,
-            emoji:emoji,
+            emoji: emoji,
             coverImage: coverImage,
             createdBy: user?.primaryEmailAddress?.emailAddress,
-            id: docId,
+            id: workspaceId,
             orgId: orgId ? orgId : user?.primaryEmailAddress?.emailAddress,
         });
 
+        const docId = uuid4();
+        await setDoc(doc(db, 'workspaceDocument', docId.toString()), {
+            workspaceId: workspaceId,
+            createdBy: user?.primaryEmailAddress?.emailAddress,
+            coverImage: null,
+            emoji: null,
+            id: docId,
+            documentName: 'Untitled Document',
+            documentOutput: []
+        });
+
+        await setDoc(doc(db, 'documentOutput', docId.toString()), {
+            docId: docId,
+            output: [],
+        });
+
         setLoading(false);
-        router.replace('/workspace/'+docId);
+        router.replace('/workspace/'+workspaceId+'/'+docId);
     }
 
     return (
