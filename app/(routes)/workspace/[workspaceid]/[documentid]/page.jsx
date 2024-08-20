@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import SideNav from '../../_components/SideNav'
+import DocumentEditorSection from '../../_components/DocumentEditorSection'
 
 function WorkspaceDocument({ params }) {
 
@@ -13,7 +14,7 @@ function WorkspaceDocument({ params }) {
 
         {/* Document */}
         <div className='md:ml-72'>
-            document
+            <DocumentEditorSection params={params} />
         </div>
     </div>
   )

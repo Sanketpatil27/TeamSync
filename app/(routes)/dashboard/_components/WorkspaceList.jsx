@@ -1,21 +1,40 @@
 "use client"
 import { Button } from '@/components/ui/button';
-import { useUser } from '@clerk/nextjs'
+import { useAuth, useUser } from '@clerk/nextjs'
 import { AlignLeft, LayoutGrid } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import WorkspaceItemList from './WorkspaceItemList';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/config/firebaseConfig';
 
 function WorkspaceList() {
     const { user } = useUser();
+    const { orgId } = useAuth();
     const [workspaceList, setWorkspaceList] = useState([]);
+
+    useEffect(() => {
+        user && getWorkspaceList();
+    }, [user]);
+
+    const getWorkspaceList = async () => {
+        const q = query(collection(db, 'workspace'), where('orgId', '==', orgId?orgId:user?.primaryEmailAddress?.emailAddress));
+        const querySnapshot = await getDocs(q);
+
+        setWorkspaceList([]);
+        querySnapshot.forEach((doc) => {
+            // console.log(doc.data());
+            setWorkspaceList(prev => [...prev, doc.data()]);
+        });
+    }
 
     return (
         <div className='my-10 p-10 md:px-24 lg:px-36 xl:px-52'>
             <div className='flex justify-between'>
                 <h2 className='font-bold text-2xl'>
-                    Hello, 
-                    <span className='text-primary'> { user?.fullName } </span>
+                    Hello,
+                    <span className='text-primary'> {user?.fullName} </span>
                 </h2>
 
                 <Link href={'/createworkspace'}>
@@ -34,20 +53,21 @@ function WorkspaceList() {
             </div>
 
             {
-                WorkspaceList?.length === 0 ? 
-                <div className='flex flex-col justify-center items-center my-10'>
-                    <Image src={'/workspace.png'} width={200} height={200} alt='workspace' />
+                workspaceList?.length === 0
+                    ?
+                    <div className='flex flex-col justify-center items-center my-10'>
+                        <Image src={'/workspace.png'} width={200} height={200} alt='workspace' />
 
-                    <h2>Create New Workspace</h2>
-                    
-                    <Link href={'/createworkspace'}>
-                        <Button className="my-3"> + Add Workspace </Button>
-                    </Link>
-                </div>
-                :
-                <div>
-                    Workspace List
-                </div>
+                        <h2>Create New Workspace</h2>
+
+                        <Link href={'/createworkspace'}>
+                            <Button className="my-3"> + Add Workspace </Button>
+                        </Link>
+                    </div>
+                    :
+                    <div>
+                        <WorkspaceItemList workspaceList={workspaceList} />
+                    </div>
             }
         </div>
     )
