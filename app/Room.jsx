@@ -1,6 +1,6 @@
-// add users to comments: https://liveblocks.io/docs/guides/how-to-add-users-to-liveblocks-comments
-
 "use client";
+
+// add users to comments: https://liveblocks.io/docs/guides/how-to-add-users-to-liveblocks-comments
 
 import { db } from "@/config/firebaseConfig";
 import {
@@ -13,7 +13,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 export function Room({ children, params }) {
 	return (
 		<LiveblocksProvider
-			authEndpoint="/api/liveblocks-auth"
+			authEndpoint={`/api/liveblocks-auth?roomId=${params?.documentid}`}
 			resolveUsers={async ({ userIds }) => {
 				// console.log(userIds);		// prints users who commented on that  document
 				const q = query(collection(db, 'LoopUsers'), where('email', 'in', userIds))
@@ -52,7 +52,7 @@ export function Room({ children, params }) {
 			}}
 		>
 			{/* room id will be documentid */}
-			<RoomProvider id={params?.documentid}>
+			<RoomProvider id={params?.documentid ? params?.documentid : '1'}>
 				<ClientSideSuspense fallback={<div>Loading…</div>}>
 					{children}
 				</ClientSideSuspense>

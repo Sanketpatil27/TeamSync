@@ -15,6 +15,7 @@
     import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
     import { db } from '@/config/firebaseConfig';
     import { useUser } from '@clerk/nextjs';
+import GenerateAITemplate from './GenerateAITemplate';
 
 
     function RichDocumentEditor({ params }) {
@@ -45,7 +46,7 @@
                 const docRef = doc(db, 'documentOutput', params?.documentid)
 
                 await updateDoc(docRef, {
-                    output: outputData,
+                    output: JSON.stringify(outputData),
                     editedBy: user?.primaryEmailAddress?.emailAddress
                 });
             });
@@ -58,7 +59,7 @@
                     // render only if not already rendered  OR do not render when you're itself changing the content, so don't need to refetch at that time
                     if (doc.data()?.editedBy != user?.primaryEmailAddress?.emailAddress || !isFetched) {
                         // if it has editedBy field means its edited else it is initially empty output [] so not checking data()?.output
-                        doc?.data()?.editedBy && editor.render(doc.data()?.output)
+                        doc.data()?.editedBy && editor?.render(JSON.parse(doc.data()?.output))
                     }
                     isFetched = true;
                 })
@@ -115,8 +116,12 @@
 
         
         return (
-            <div className='lg:-ml-40'>
-                <div id="editorjs"> </div>
+            <div className='lg:ml-40'>
+                <div id="editorjs" className='w-[70%]'> </div>
+
+                <div className='fixed bottom-5 md:ml-80 left-0 z-10'>
+                    <GenerateAITemplate setGenerateAIOutput={(output)=>editor?.render(output)}/>
+                </div>
             </div>
         )
     }
