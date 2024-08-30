@@ -1,3 +1,1 @@
-Clone of Microsoft Loop
-
-5.00
+Real time Team collaboration app
